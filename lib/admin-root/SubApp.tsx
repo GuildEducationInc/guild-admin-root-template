@@ -1,13 +1,16 @@
 import * as React from 'react';
-import apps from './apps.js';
-import {  getRoute } from '@guildeducationinc/guild-admin-utils';
+import { getRoute } from '@guildeducationinc/guild-admin-utils';
 import { useAuthAndLogin } from '@guildeducationinc/guild-auth';
 import { ProtectedComponent, } from '@guildeducationinc/guild-auth';
 import { Loading } from '@guildeducationinc/recess/components/Loading';
 import { getRoles } from '@guildeducationinc/guild-admin-utils';
 import { ErrorPage } from '@guildeducationinc/recess/components/ErrorPage';
+import { Switch, Route } from 'react-router';
 
-const SubApp = () => {
+export interface SubAppRoutesProps {
+  apps: Array<any>
+}
+const SubAppRoutes: React.FC<SubAppRoutesProps> = (props) => {
   const { loading, authError, hasAuthError } = useAuthAndLogin();
 
   if (loading) {
@@ -20,26 +23,31 @@ const SubApp = () => {
   if (!loading && hasAuthError) {
     return <ErrorPage message={authError} goBack={ () => history.back() }/>;
   }
-  return (<>
+  return (
+    <Switch>
     {
-      apps.map((App, idx) => {
+      props.apps.map((App, idx) => {
         const roles = getRoles(App)
         if (roles.length === 0) {
           return (
-            <App key={getRoute(App)} />
+            <Route path={getRoute(App)}>
+              <App key={getRoute(App)} />
+            </Route>
 
           )
           } else {
             return (
-              <ProtectedComponent key={idx} roles={roles} fallback={<ErrorPage message='Not found' goBack={() => history.back()}/>} loader={<Loading />}>
-                <App key={getRoute(App)} />
-              </ProtectedComponent>
+              <Route path={getRoute(App)}>
+                <ProtectedComponent key={idx} roles={roles} fallback={<ErrorPage message='Not found' goBack={() => history.back()}/>} loader={<Loading />}>
+                  <App key={getRoute(App)} />
+                </ProtectedComponent>
+              </Route>
             )
           }
       })
     }
-    </>
+    </Switch>
   )
 }
 
-export default SubApp;
+export default SubAppRoutes;
