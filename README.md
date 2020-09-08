@@ -6,9 +6,9 @@ This is a Guild admin-root starter project to get you started with creating an g
 ---
 1. [Create a new github repo](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) from this repository template.
 2. Once the repository is created, clone it to your local development enviroment.
-3. Run `npx -p @guildeducationinc/guild-admin-utils create-guild-admin root` and follow the instructions
+3. Run `npx -p @guildeducationinc/guild-admin-bootstrapper create-guild-admin root` and follow the instructions
 4. Run `yarn install`
-5. Configure your `.env` files for each environment
+5. Configure your `.env` files for each environment 
 6. Push your branch to github
 
 
