@@ -1,60 +1,35 @@
-require('dotenv').config({ path: path.resolve('../env/.env.production')});
-const webpack = require('webpack');
-const path = require('path');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const RollbarSourceMapPlugin = require('rollbar-sourcemap-webpack-plugin');
-
-const determineHostname = () => {
-  const host = process.env.HEROKU_APP_NAME || '';
-  return process.env.HOSTNAME ? process.env.HOSTNAME : `https://${host}.herokuapp.com`;
-};
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-
-
-// TODO: Rollbar config
-
-// if (
-//   process.env.ROLLBAR_ACCESS_TOKEN
-// ) {
-//   plugins.push(
-//     new RollbarSourceMapPlugin({
-//       accessToken: process.env.ROLLBAR_ACCESS_TOKEN || null,
-//       version: process.env.SOURCE_VERSION || process.env.HEROKU_SLUG_COMMIT || null,
-//       publicPath: determineHostname(),
-//     })
-//   );
-// }
+const path = require('path')
 
 module.exports = {
   mode: 'production',
-  optimization: {
-    minimizer: [new TerserJSPlugin(), new OptimizeCSSAssetsPlugin()],
+  output: {
+    path: path.resolve(__dirname, '../public'),
+    publicPath: process.env.PUBLIC_PATH || '/',
+    filename: '[name].[hash:8].min.js',
+    sourceMapFilename: '[name].[chunkhash].min.map',
+    chunkFilename: '[name].[chunkhash].min.js',
   },
-  module: {
-    rules: [
-      {
-        test: /\.(css|scss)$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader',
-          'postcss-loader',
-          {
-            loader: 'sass-loader',
-            options: {
-              includePaths: [path.join(__dirname, '..', 'node_modules')],
-            },
-          },
-        ],
-      },
+  optimization: {
+    minimizer: [
+      new TerserJSPlugin({
+        cache: true,
+        extractComments: true,
+        parallel: true,
+        sourceMap: true,
+      }),
+      new OptimizeCSSAssetsPlugin(),
     ],
   },
-  plugins: [
-    new OptimizeCSSAssetsPlugin(),
-    new MiniCssExtractPlugin({
-      filename: '[name].[hash:8].css',
-      chunkFilename: '[id].[hash:8].css',
+  plugins:
+  process.env.ROLLBAR_POST_CLIENT_TOKEN ?
+  [
+    new RollbarSourceMapPlugin({
+      accessToken: process.env.ROLLBAR_ACCESS_TOKEN || null,
+      version: process.env.CODEBUILD_SOURCE_VERSION || null,
+      publicPath: process.env.PUBLIC_PATH
     })
-  ]
+  ] : []
 };

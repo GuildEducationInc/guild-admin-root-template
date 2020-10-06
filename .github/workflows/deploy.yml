@@ -1,0 +1,74 @@
+name: Deploy Application to AWS
+on:
+  push:
+    branches:
+      - main
+      - production
+jobs:
+  deploy-acceptance:
+    runs-on: ubuntu-latest
+    container: node:10
+    name: Deploy SPA to acceptance
+    if: github.ref == 'refs/heads/main'
+    env:
+      NPM_TOKEN: ${{ secrets.DEVOPS_ALL_NPM_TOKEN }}
+      NODE_ENV: staging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        env:
+          cache-name: ${{ github.ref }}
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+          ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+            ${{ runner.os }}-${{ env.cache-name }}-
+            ${{ runner.os }}
+            
+      - name: Install node_modules
+        run: yarn install
+      - name: Deploy Application
+        uses: ./.github/actions/deploy-spa
+        with:
+          aws-access-key-id: ${{secrets.DEVOPS_DEV_AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.DEVOPS_DEV_AWS_SECRET_ACCESS_KEY}}
+          aws-env: 'dev'
+          node-env: 'prod'
+
+      
+  deploy-production:
+    runs-on: ubuntu-latest
+    container: node:10
+    name: Deploy SPA to production
+
+    if: github.ref == 'refs/heads/production'
+    env:
+      NPM_TOKEN: ${{ secrets.DEVOPS_ALL_NPM_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        env:
+          cache-name: ${{ github.ref }}
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+          ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+            ${{ runner.os }}-${{ env.cache-name }}-
+            ${{ runner.os }}
+            
+      - name: Install node_modules
+        run: yarn install
+      - name: Deploy Application
+        uses: ./.github/actions/deploy-spa
+        with:
+          aws-access-key-id: ${{secrets.DEVOPS_PROD_AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.DEVOPS_PROD_AWS_SECRET_ACCESS_KEY}}
+          aws-env: 'prod'
+          node-env: 'prod'
+      

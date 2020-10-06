@@ -4,7 +4,6 @@ const common = require('./webpack/webpack.common');
 /**
  * process.env.NODE_ENV should be one of the following
  * 1. dev
- * 2. staging
  * 3. prod
  * 
  */
@@ -12,7 +11,6 @@ const common = require('./webpack/webpack.common');
 const webpackEnv = (environment) => {
   const webpackEnvMap = {
     dev: 'dev',
-    staging: 'dev',
     prod: 'prod'
   }
 

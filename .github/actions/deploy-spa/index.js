@@ -1,0 +1,1 @@
+require("@guildeducationinc/guild-admin-github-actions/actions/deploy-admin-root");

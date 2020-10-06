@@ -1,0 +1,23 @@
+name: Deploy Application to AWS
+author: Guild Education
+description: Creates AWS hosting infrastructure for guild SPA
+inputs:
+  aws-access-key-id:
+    description: 'AWS access key id for API access'
+    required: true
+  aws-secret-access-key:
+    description: 'AWS secret access key for API access'
+    required: true
+  aws_region:
+    description: 'AWS region'
+    default: 'us-west-2'
+  aws-env:
+    description: 'This represents the aws env of the deployment. dev | staging | prod'
+    default: 'staging'
+  node-env:
+    description: 'This represents the webpack build enviroment of the application. dev | staging | prod'
+    default: 'dev'
+  
+runs:
+  using: 'node12'
+  main: 'index.js'
